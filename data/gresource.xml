@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/in/netroy/network-scanner">
+    <file preprocess="xml-stripblanks">ui/MainWindow.ui</file>
+  </gresource>
+</gresources>

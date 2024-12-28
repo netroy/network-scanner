@@ -1,8 +1,10 @@
 APPID := in.netroy.network-scanner
 BUILD_DIR := build
 FLATPAK_BUILD_DIR := flatpak-build-dir
+PREFIX := /usr/local
+LOCALE_DIR := $(PREFIX)/share/locale
 
-.PHONY: all clean lint build install run flatpak-build flatpak-run flatpak-bundle
+.PHONY: all clean lint build install install-locales run flatpak-build flatpak-run flatpak-bundle
 
 all: build
 
@@ -22,9 +24,19 @@ build:
 	cd $(BUILD_DIR) && meson setup ..
 	cd $(BUILD_DIR) && ninja
 
+# Install locales
+install-locales:
+	@echo "Installing locale files..."
+	for lang in po/*.po; do \
+		code=$$(basename $$lang .po); \
+		sudo mkdir -p $(DESTDIR)$(LOCALE_DIR)/$$code/LC_MESSAGES; \
+		sudo msgfmt -o $(DESTDIR)$(LOCALE_DIR)/$$code/LC_MESSAGES/network-scanner.mo $$lang; \
+	done
+
 # Install the application
-install: build
+install: build install-locales
 	cd $(BUILD_DIR) && ninja install
+	@echo "Installation complete. Run 'sudo ldconfig' if this is the first install."
 
 # Run the application directly
 run: build
@@ -45,7 +57,7 @@ flatpak-bundle: flatpak-build
 
 # Development setup
 setup:
-	sudo pacman -S vala gtk4 meson base-devel flatpak flatpak-builder arp-scan libsoup json-glib
+	sudo pacman -S vala gtk4 meson base-devel flatpak flatpak-builder arp-scan libsoup json-glib blueprint-compiler gettext
 	flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 	yay -S vala-lint-git
 
@@ -56,7 +68,7 @@ help:
 	@echo "  make lint         - Run vala-lint"
 	@echo "  make build        - Build the application"
 	@echo "  make run          - Build and run the application"
-	@echo "  make install      - Install the application"
+	@echo "  make install      - Install the application and locale files"
 	@echo "  make clean        - Clean build directories"
 	@echo "  make flatpak-build - Build Flatpak"
 	@echo "  make flatpak-run   - Run application in Flatpak"

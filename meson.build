@@ -1,67 +1,80 @@
-project('network-scanner', 'vala', 'c',
-  version: '0.1.0',
-  meson_version: '>= 0.56.0'
-)
+project('network-scanner', 'vala', 'c')
 
-i18n = import('i18n')
 gnome = import('gnome')
-
-add_project_arguments(
-  '--target-glib=2.50',
-  language: 'vala'
-)
+i18n = import('i18n')
+blueprint_compiler = find_program('blueprint-compiler')
 
 add_project_arguments(
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
   language: 'c'
 )
 
-# Dependencies
-gtk_dep = dependency('gtk4')
-adw_dep = dependency('libadwaita-1', version: '>= 1.4')
-glib_dep = dependency('glib-2.0')
-gobject_dep = dependency('gobject-2.0')
-gio_dep = dependency('gio-2.0')
-json_glib_dep = dependency('json-glib-1.0')
+dependencies = [
+  dependency('glib-2.0'),
+  dependency('gobject-2.0'),
+  dependency('gtk4'),
+  dependency('libadwaita-1'),
+  dependency('json-glib-1.0'),
+  dependency('gio-2.0')
+]
 
-# Configure config.h
+# Compile blueprint files
+blueprints = custom_target('blueprints',
+  input: files(
+    'src/MainWindow.blp'
+  ),
+  output: '.',
+  command: [
+    blueprint_compiler,
+    'batch-compile',
+    '@OUTDIR@/ui',
+    '@CURRENT_SOURCE_DIR@/src',
+    '@INPUT@'
+  ]
+)
+
+# Generate resources
+gresources = gnome.compile_resources(
+  'gresources',
+  'data/gresource.xml',
+  dependencies: blueprints,
+  source_dir: meson.current_build_dir()
+)
+
+# Translations
+i18n.gettext(meson.project_name(),
+  preset: 'glib',
+  args: [
+    '--keyword=_',
+    '--from-code=UTF-8'
+  ]
+)
+
+# Configure
 conf = configuration_data()
 conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
-conf.set_quoted('VERSION', meson.project_version())
-conf.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))
+conf.set_quoted('LOCALEDIR', get_option('prefix') / get_option('localedir'))
+conf.set_quoted('PACKAGE_VERSION', meson.project_version())
 
 config_h = configure_file(
   output: 'config.h',
   configuration: conf
 )
 
-config_h_dir = include_directories('.')
-config_dep = meson.get_compiler('vala').find_library('config', dirs: meson.current_source_dir())
-
-# Source files
-sources = files(
-  'src/Application.vala',
-  'src/MainWindow.vala',
-  'src/NetworkScanner.vala',
-  'src/NetworkDevice.vala'
+config_dep = declare_dependency(
+  dependencies: [
+    meson.get_compiler('vala').find_library('config', dirs: meson.current_source_dir()),
+  ]
 )
 
 executable(
-  'network-scanner',
-  sources,
+  meson.project_name(),
+  'src/Application.vala',
+  'src/MainWindow.vala',
+  'src/NetworkScanner.vala',
+  'src/NetworkDevice.vala',
   config_h,
-  dependencies: [
-    gtk_dep,
-    adw_dep,
-    glib_dep,
-    gobject_dep,
-    gio_dep,
-    json_glib_dep,
-    config_dep
-  ],
-  include_directories: config_h_dir,
+  gresources,
+  dependencies: [dependencies, config_dep],
   install: true
 )
-
-subdir('data')
-subdir('po')

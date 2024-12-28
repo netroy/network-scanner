@@ -1,0 +1,102 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $NetworkScannerMainWindow : Adw.ApplicationWindow {
+  default-width: 600;
+  default-height: 400;
+  width-request: 360;
+
+  Box main_box {
+    orientation: vertical;
+
+    HeaderBar header {
+      styles ["flat"]
+
+      [start]
+      Adw.Clamp dropdown_clamp {
+        maximum-size: 400;
+        tightening-threshold: 300;
+
+        Box dropdown_box {
+          orientation: horizontal;
+          spacing: 6;
+
+          Label interface_label {
+            label: _("Interface:");
+            styles ["dim-label"]
+          }
+
+          DropDown interface_dropdown {
+            enable-search: false;
+            model: StringList {};
+          }
+        }
+      }
+
+      [end]
+      Box button_box {
+        orientation: horizontal;
+        spacing: 6;
+
+        Button scan_button {
+          sensitive: false;
+          styles ["suggested-action"]
+
+          Box scan_box {
+            orientation: horizontal;
+            spacing: 6;
+
+            Image scan_icon {
+              icon-name: "system-search-symbolic";
+            }
+
+            Label scan_label {
+              label: _("Scan Network");
+            }
+          }
+        }
+      }
+    }
+
+    Box content {
+      orientation: vertical;
+      styles ["content"]
+
+      Stack stack {
+        transition-type: crossfade;
+
+        StackPage {
+          name: "empty";
+
+          child: Adw.StatusPage status_page {
+            icon-name: "network-wired-symbolic";
+            title: _("Network Scanner");
+            description: _("Select an interface and click Scan to discover devices on your network");
+          };
+        }
+
+        StackPage {
+          name: "list";
+
+          child: Adw.Clamp list_clamp {
+            maximum-size: 800;
+            tightening-threshold: 600;
+
+            ScrolledWindow scrolled {
+              margin-start: 12;
+              margin-end: 12;
+              margin-top: 12;
+              margin-bottom: 12;
+              vexpand: true;
+
+              ListBox list_box {
+                styles ["boxed-list"]
+                selection-mode: none;
+              }
+            }
+          };
+        }
+      }
+    }
+  }
+}

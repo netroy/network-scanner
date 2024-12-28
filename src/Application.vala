@@ -1,3 +1,7 @@
+[CCode (cprefix = "", lower_case_cprefix = "", cheader_filename = "config.h")]
+extern const string GETTEXT_PACKAGE;
+extern const string LOCALEDIR;
+
 public class NetworkScanner.Application : Adw.Application {
   public Application () {
     Object (
@@ -16,10 +20,12 @@ public class NetworkScanner.Application : Adw.Application {
     Adw.init ();
 
     // Initialize internationalization support
+    Environment.set_variable ("GSETTINGS_SCHEMA_DIR", "/app/share/glib-2.0/schemas", true);
+
     Intl.setlocale (LocaleCategory.ALL, "");
-    Intl.bindtextdomain (Config.GETTEXT_PACKAGE, Config.LOCALEDIR);
-    Intl.bind_textdomain_codeset (Config.GETTEXT_PACKAGE, "UTF-8");
-    Intl.textdomain (Config.GETTEXT_PACKAGE);
+    Intl.bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+    Intl.bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+    Intl.textdomain (GETTEXT_PACKAGE);
   }
 
   public static int main (string[] args) {
