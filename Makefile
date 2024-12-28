@@ -45,7 +45,7 @@ flatpak-bundle: flatpak-build
 
 # Development setup
 setup:
-	sudo pacman -S vala gtk4 meson base-devel flatpak flatpak-builder
+	sudo pacman -S vala gtk4 meson base-devel flatpak flatpak-builder arp-scan libsoup json-glib
 	flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 	yay -S vala-lint-git
 

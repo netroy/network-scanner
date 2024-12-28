@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Network Scanner
+Comment=Scan and monitor devices on your network
+Type=Application
+Exec=network-scanner
+Terminal=false
+Categories=Network;System;Monitor;
+Keywords=network;scanner;device;monitor;
+Icon=network-wired-symbolic
