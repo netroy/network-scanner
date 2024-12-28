@@ -78,20 +78,32 @@ template $NetworkScannerMainWindow : Adw.ApplicationWindow {
         StackPage {
           name: "list";
 
-          child: Adw.Clamp list_clamp {
-            maximum-size: 800;
-            tightening-threshold: 600;
+          child: Box {
+            orientation: vertical;
+            spacing: 6;
 
-            ScrolledWindow scrolled {
+            SearchEntry search_entry {
               margin-start: 12;
               margin-end: 12;
               margin-top: 12;
-              margin-bottom: 12;
-              vexpand: true;
+              placeholder-text: _("Search devices...");
+            }
 
-              ListBox list_box {
-                styles ["boxed-list"]
-                selection-mode: none;
+            Adw.Clamp list_clamp {
+              maximum-size: 800;
+              tightening-threshold: 600;
+
+              ScrolledWindow scrolled {
+                margin-start: 12;
+                margin-end: 12;
+                margin-top: 6;
+                margin-bottom: 12;
+                vexpand: true;
+
+                ListBox list_box {
+                  styles ["boxed-list"]
+                  selection-mode: none;
+                }
               }
             }
           };
